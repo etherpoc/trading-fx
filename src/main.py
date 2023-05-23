@@ -98,7 +98,7 @@ while True:
                         "action": mt5.TRADE_ACTION_DEAL,
                         "symbol": position["symbol"],
                         "volume": position["volume"],
-                        "type": mt5.ORDER_TYPE_SELL,
+                        "type": mt5.ORDER_TYPE_BUY,
                         "position": position["ticket"],
                         "price": symbol_tick.ask,
                     })
