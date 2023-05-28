@@ -1,1 +1,1 @@
-from client import MT5Client
+from modules.client import MT5Client
