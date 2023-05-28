@@ -1,5 +1,5 @@
 import MetaTrader5 as mt5
-import pandas as pd
+import textwrap
 
 class MT5Client:
     
@@ -37,7 +37,7 @@ class MT5Client:
             account_info=mt5.account_info()
             if account_info!=None:
                 account_info_dict = mt5.account_info()._asdict()
-                print(f"""
+                print(textwrap.dedent(f"""
                       Account : {account_info_dict["login"]}
                       Name : {account_info_dict["name"]}
                       Server : {account_info_dict["server"]}
@@ -45,7 +45,7 @@ class MT5Client:
                       Balance : {account_info_dict["balance"]}({account_info_dict["currency"]})
                       Leverage : {account_info_dict["leverage"]}
                       LimitOrders : {account_info_dict["limit_orders"]}
-                      """)
+                      """))
                 print("Authentication Success!")
             else:
                 print(f"failed to connect to trade account {id} with password={password}, error code =",mt5.last_error())
@@ -175,6 +175,8 @@ class MT5Client:
             result.append(self.order_clear(position))
         return result
     
-    def positions_get(self, symbol):
+    def positions_get(self, symbol = None):
         """ポジション情報取得"""
-        return mt5.positions_get(symbol)
+        if symbol is None:
+            symbol = self.symbol
+        return mt5.positions_get(symbol = symbol)
