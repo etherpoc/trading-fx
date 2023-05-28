@@ -1,2 +1,3 @@
 charts/*
-*/**/*.env
+*.env
+__pycache__
