@@ -35,10 +35,11 @@ else:
 symbol = "USDJPY"   # 取引対象
 magic_number = 10001 # bot識別番号
 per     = 0.1       # 1回の投資金額
-losscut = 0.995     # ロスカットする比率
+losscut = 0.997     # ロスカットする比率
+take_profit = 1.01  # 利確
 per_lot = 100000     # 1ロット当たりの通貨数
 leverage = 100        # レバレッジ(整数)
-maxlen = 60         # modelの入力データの長さ
+maxlen = 90         # modelの入力データの長さ
 
 # 最小lot数取得
 point=mt5.symbol_info(symbol).point
@@ -48,25 +49,28 @@ point=mt5.symbol_info(symbol).point
 recent = datetime.now()
 
 # 指定した学習済みモデルを読み込み
-mlmodel = tf.keras.models.load_model("src\models\model60_20230523_010554.h5")
+mlmodel = tf.keras.models.load_model("src\models\model90_20230524_220904.h5")
 
 while True:
     #記録
     now = datetime.now()
     if recent.date() < now.date() or recent.hour < now.hour:
         print("処理")
+        print(now)
         recent = now
         # 1時間たったら予測
         # 直近60時間のデータを取得（時間足）
         # 1時間足のチャート取得
         rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 1, 60+maxlen-1)
         rates_frame = pd.DataFrame(rates)
+        print(rates_frame)
         # 乖離率算出
         deviation_rate = [rates_frame.iloc[i+59, 4]/rates_frame.iloc[i:i+60, 4].mean()  for i in range(0, maxlen)]
         deviation_rate = np.array(deviation_rate).reshape(-1, maxlen, 1)
         # モデルで予測上昇度算出
         predicted = mlmodel.predict(deviation_rate)[0][0]
-        print(f"予測 {predicted}")
+        print(f"close : {rates_frame['close'].values[-1]}")
+        print(f"予測 : {predicted}")
         # 残高
         balance = mt5.account_info()._asdict()["balance"]
         symbol_tick=mt5.symbol_info_tick(symbol) # symbolのtick情報を取得
@@ -82,7 +86,7 @@ while True:
                     "type": mt5.ORDER_TYPE_BUY,
                     "price": symbol_tick.ask,
                     "sl": rates_frame["close"].values[-1] * losscut,
-                    "tp": rates_frame["close"].values[-1] * 1.01,
+                    "tp": rates_frame["close"].values[-1] * take_profit,
                     "deviation": 20,
                     "magic": 234000,
                     "comment": "python script open",
@@ -110,7 +114,7 @@ while True:
                         "type": mt5.ORDER_TYPE_BUY,
                         "price": symbol_tick.ask,
                         "sl": rates_frame["close"].values[-1] * losscut,
-                        "tp": rates_frame["close"].values[-1] * 1.01,
+                        "tp": rates_frame["close"].values[-1] * take_profit,
                         "deviation": 20,
                         "magic": 234000,
                         "comment": "python script open",
@@ -128,7 +132,7 @@ while True:
                     "type": mt5.ORDER_TYPE_SELL,
                     "price": symbol_tick.bid,
                     "sl": rates_frame["close"].values[-1] * (2-losscut),
-                    "tp": rates_frame["close"].values[-1] * 0.99,
+                    "tp": rates_frame["close"].values[-1] * (2-take_profit),
                     "deviation": 20,
                     "magic": 234000,
                     "comment": "python script open",
@@ -157,7 +161,7 @@ while True:
                         "type": mt5.ORDER_TYPE_SELL,
                         "price": symbol_tick.bid,
                         "sl": rates_frame["close"].values[-1] * (2-losscut),
-                        "tp": rates_frame["close"].values[-1] * 0.99,
+                        "tp": rates_frame["close"].values[-1] * (2-take_profit),
                         "deviation": 20,
                         "magic": 234000,
                         "comment": "python script open",
