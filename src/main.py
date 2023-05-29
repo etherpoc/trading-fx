@@ -55,9 +55,11 @@ while True:
     if recent.date() < now.date() or recent.hour < now.hour:
         recent = now
         terminal_size = shutil.get_terminal_size()
+        print()
         print("="*terminal_size.columns)
         print(now)
         print("="*terminal_size.columns)
+        print()
         
         # 直近60時間のデータを取得（時間足）
         # 1時間足のチャート取得
@@ -79,6 +81,7 @@ while True:
         # ポジション情報取得
         positions = mt5client.positions_get(symbol)
         if predicted >= 0.5:
+            print("Buy")
             if len(positions) == 0:
                 print("\nOrder Buy")
                 result = mt5client.order_buy()
@@ -95,8 +98,10 @@ while True:
                     print("\nOrder Buy")
                     result = mt5client.order_buy()
                     print(f"Result", result)
+                else:
+                    print("Continue Now Positions")
         else:
-            print("売り")
+            print("Sell")
             if len(positions) == 0:
                 print("\nOrder Sell")
                 result = mt5client.order_sell()
@@ -112,6 +117,8 @@ while True:
                     print("\nOrder Sell")
                     result = mt5client.order_sell()
                     print(f"Result", result)
+                else:
+                    print("Continue Now Positions")
 
 
 mt5.shutdown()
