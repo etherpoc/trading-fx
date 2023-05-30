@@ -1,6 +1,6 @@
 import MetaTrader5 as mt5
 import textwrap
-
+import time
 class MT5Client:
     
     def __init__(self, id: str, password: str, server: str, symbol:str, 
@@ -25,8 +25,10 @@ class MT5Client:
         maxlen(int)         modelの入力データの長さ\n
         """
         if not mt5.initialize():
-            print("MetaTrader5.initialize() failed, error code =", mt5.last_error())
-            exit()
+            time.sleep(10)
+            if not mt5.initialize():
+                print("MetaTrader5.initialize() failed, error code =", mt5.last_error())
+                exit()
         print(f'MetaTrader5 version : {mt5.version()}')
         self.authorized = mt5.login(
             login = id,
