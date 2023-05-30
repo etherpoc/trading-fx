@@ -70,8 +70,12 @@ class MT5Client:
                    magic=234000,
                    comment="Send Order",
                    type_time=mt5.ORDER_TIME_GTC,
-                   type_filling=mt5.ORDER_FILLING_RETURN):
+                   type_filling=None):
         """注文送信"""
+        if type_filling is None:
+            symbol_info = mt5.symbol_info(symbol)._asdict()
+            type_filling = symbol_info["filling_mode"]
+            
         result = mt5.order_send({
             "action": action,
             "symbol": symbol,
@@ -93,13 +97,16 @@ class MT5Client:
                    magic=234000,
                    comment="Send Buy Order",
                    type_time=mt5.ORDER_TIME_GTC,
-                   type_filling=mt5.ORDER_FILLING_RETURN):
+                   type_filling=None):
         """成り行き注文(買い)"""
         
         if symbol is None:
             symbol = self.symbol
         symbol_tick=mt5.symbol_info_tick(symbol)
         point = mt5.symbol_info(symbol).point
+        if type_filling is None:
+            symbol_info = mt5.symbol_info(symbol)._asdict()
+            type_filling = symbol_info["filling_mode"]
         if volume is None:
             balance = mt5.account_info()._asdict()["balance"]
             volume = round((balance * self.per * self.leverage / symbol_tick.ask) / self.per_lot, 2)
@@ -121,12 +128,15 @@ class MT5Client:
                    magic=234000,
                    comment="Send Sell Order",
                    type_time=mt5.ORDER_TIME_GTC,
-                   type_filling=mt5.ORDER_FILLING_RETURN):
+                   type_filling=None):
         """成り行き注文(売り)"""
         if symbol is None:
             symbol = self.symbol
         symbol_tick=mt5.symbol_info_tick(symbol)
         point = mt5.symbol_info(symbol).point
+        if type_filling is None:
+            symbol_info = mt5.symbol_info(symbol)._asdict()
+            type_filling = symbol_info["filling_mode"]
         
         if volume is None:
             balance = mt5.account_info()._asdict()["balance"]
