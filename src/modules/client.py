@@ -43,6 +43,7 @@ class MT5Client:
                       Server : {account_info_dict["server"]}
                       TradeMode : {account_info_dict["trade_mode"]} (demo: 0, contest: 1, real: 2)
                       Balance : {account_info_dict["balance"]}({account_info_dict["currency"]})
+                      Equity : {account_info_dict["equity"]}({account_info_dict["currency"]})
                       Leverage : {account_info_dict["leverage"]}
                       LimitOrders : {account_info_dict["limit_orders"]}
                       """))
@@ -73,8 +74,7 @@ class MT5Client:
                    type_filling=None):
         """注文送信"""
         if type_filling is None:
-            symbol_info = mt5.symbol_info(symbol)._asdict()
-            type_filling = symbol_info["filling_mode"]
+            type_filling = mt5.ORDER_FILLING_IOC
             
         result = mt5.order_send({
             "action": action,
@@ -103,17 +103,14 @@ class MT5Client:
         if symbol is None:
             symbol = self.symbol
         symbol_tick=mt5.symbol_info_tick(symbol)
-        point = mt5.symbol_info(symbol).point
-        if type_filling is None:
-            symbol_info = mt5.symbol_info(symbol)._asdict()
-            type_filling = symbol_info["filling_mode"]
+        symbol_info = mt5.symbol_info(symbol)
+        point = symbol_info.point
         if volume is None:
-            balance = mt5.account_info()._asdict()["balance"]
-            volume = round((balance * self.per * self.leverage / symbol_tick.ask) / self.per_lot, 2)
+            equity = mt5.account_info().equity
+            volume = round((equity * self.per * self.leverage / symbol_tick.ask) / self.per_lot, 2)
             if volume < point:
                 volume = point
                 
-        
         if stop_loss is None:
             stop_loss = symbol_tick.bid * self.stop_loss
         
@@ -130,17 +127,16 @@ class MT5Client:
                    type_time=mt5.ORDER_TIME_GTC,
                    type_filling=None):
         """成り行き注文(売り)"""
+        
         if symbol is None:
             symbol = self.symbol
         symbol_tick=mt5.symbol_info_tick(symbol)
-        point = mt5.symbol_info(symbol).point
-        if type_filling is None:
-            symbol_info = mt5.symbol_info(symbol)._asdict()
-            type_filling = symbol_info["filling_mode"]
+        symbol_info = mt5.symbol_info(symbol)
+        point = symbol_info.point
         
         if volume is None:
-            balance = mt5.account_info()._asdict()["balance"]
-            volume = round((balance * self.per * self.leverage / symbol_tick.bid) / self.per_lot, 2)
+            equity = mt5.account_info().equity
+            volume = round((equity * self.per * self.leverage / symbol_tick.bid) / self.per_lot, 2)
             if volume < point:
                 volume = point
         
