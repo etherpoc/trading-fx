@@ -1,2 +1,5 @@
 charts/*
-*/**/*.env
+*.env
+__pycache__
+src/logs/*
+fx-script.bat

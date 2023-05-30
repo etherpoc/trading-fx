@@ -9,7 +9,6 @@ import tensorflow as tf
 import MetaTrader5 as mt5
 from modules import MT5Client
 
-
 # 現在時刻取得
 recent = datetime.now()
 
@@ -48,7 +47,6 @@ mt5client = MT5Client(id = login_id,
 
 # 最小lot数取得
 point=mt5.symbol_info(symbol).point
-
 
 # 指定した学習済みモデルを読み込み
 mlmodel = tf.keras.models.load_model(ml_model_path)
@@ -145,8 +143,7 @@ while True:
                     log_txt += "Continue Now Positions\n"
         with open(logfile_path, "w") as l:
             l.write(log_txt)
-            
-            
+        break
 
 
 mt5.shutdown()
