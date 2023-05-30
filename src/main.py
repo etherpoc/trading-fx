@@ -20,6 +20,7 @@ load_dotenv()
 login_server = os.environ.get("LOGIN_SERVER")
 login_id = int(os.environ.get("LOGIN_ID"))
 login_password = os.environ.get("LOGIN_PASSWORD")
+ml_model_path = os.environ.get("ML_MODEL_PATH")
 
 # 各種設定
 symbol = "USDJPY"   # 取引対象
@@ -50,7 +51,7 @@ point=mt5.symbol_info(symbol).point
 
 
 # 指定した学習済みモデルを読み込み
-mlmodel = tf.keras.models.load_model("src\models\model90_20230524_220904.h5")
+mlmodel = tf.keras.models.load_model(ml_model_path)
 
 while True:
     #記録
