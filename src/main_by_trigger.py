@@ -120,3 +120,6 @@ while True:
                 else:
                     print("Continue Now Positions")
         break
+
+
+mt5.shutdown()
