@@ -12,6 +12,8 @@ from modules import MT5Client
 # 現在時刻取得
 recent = datetime.now()
 
+logfile_path = f"{os.path.dirname(__file__)}/logs/{recent.strftime('%Y_%m_%d')}.txt"
+
 # envファイル読み込み
 load_dotenv()
 login_server = os.environ.get("LOGIN_SERVER")
@@ -52,9 +54,10 @@ while True:
     #記録
     now = datetime.now()
     # 1時間たったら処理実行
-    if recent.date() < now.date() or recent.hour < now.hour:
+    if True:
         recent = now
         terminal_size = shutil.get_terminal_size()
+        log_txt = f'\n\n\n{"="*terminal_size.columns}\n{now}\n{"="*terminal_size.columns}\n\n'
         print()
         print("="*terminal_size.columns)
         print(now)
@@ -72,6 +75,8 @@ while True:
         
         # モデルで予測上昇度算出
         predicted = mlmodel.predict(deviation_rate)[0][0]
+        log_txt += f"Close    : {rates_frame['close'].values[-1]}\n"
+        log_txt += f"Predicted: {predicted}\n"
         print(f"Close    : {rates_frame['close'].values[-1]}")
         print(f"Predicted: {predicted}")
         
@@ -82,43 +87,61 @@ while True:
         positions = mt5client.positions_get(symbol)
         if predicted >= 0.5:
             print("Buy")
+            log_txt += "Buy\n"
             if len(positions) == 0:
                 print("\nOrder Buy")
                 result = mt5client.order_buy()
                 print(f"Result", result)
+                log_txt += "\nOrder Buy\n"
+                log_txt += f"Result, {result}\n"
                 
             else:
                 position = positions[0]._asdict()
                 if position["type"] == mt5.ORDER_TYPE_SELL:
                     print("\nAll Position Close")
+                    log_txt += "\nAll Position Close\n"
                     results = mt5client.order_close_all()
                     for i, v in enumerate(results):
                         print(f"[{i+1}]:", v)
+                        log_txt += f"[{i+1}]: {v}\n"
                     
                     print("\nOrder Buy")
                     result = mt5client.order_buy()
                     print(f"Result", result)
+                    log_txt += "\nOrder Buy\n"
+                    log_txt += f"Result {result}\n"
                 else:
                     print("Continue Now Positions")
+                    log_txt += "Continue Now Positions\n"
         else:
             print("Sell")
+            log_txt += "Sell\n"
             if len(positions) == 0:
                 print("\nOrder Sell")
                 result = mt5client.order_sell()
                 print(f"Result", result)
+                log_txt += "\nOrder Sell\n"
+                log_txt += f"Result, {result}\n"
             else:
                 position = positions[0]._asdict()
                 if position["type"] == mt5.ORDER_TYPE_BUY:
                     print("\nAll Position Close")
+                    log_txt += "\nAll Position Close\n"
                     results = mt5client.order_close_all()
                     for i, v in enumerate(results):
                         print(f"[{i+1}]:", v)
+                        log_txt += f"[{i+1}]: {v}\n"
                     
                     print("\nOrder Sell")
                     result = mt5client.order_sell()
                     print(f"Result", result)
+                    log_txt += "\nOrder Sell\n"
+                    log_txt += f"Result, {result}\n"
                 else:
                     print("Continue Now Positions")
+                    log_txt += "Continue Now Positions\n"
+        with open(logfile_path, "w") as l:
+            l.write(log_txt)
         break
 
 
