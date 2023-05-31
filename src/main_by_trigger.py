@@ -141,7 +141,7 @@ while True:
                 else:
                     print("Continue Now Positions")
                     log_txt += "Continue Now Positions\n"
-        with open(logfile_path, "w") as l:
+        with open(logfile_path, "a") as l:
             l.write(log_txt)
         break
 
