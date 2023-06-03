@@ -1,5 +1,6 @@
 charts/*
 *.env
 __pycache__
-src/logs/*
+logs/*
+!logs/.gitkeep
 fx-script.bat
