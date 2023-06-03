@@ -56,7 +56,7 @@ while True:
     #記録
     now = datetime.now()
     # 1時間たったら処理実行
-    if True:
+    if recent.date() < now.date() or recent.hour < now.hour:
         recent = now
         terminal_size = shutil.get_terminal_size()
         print()
