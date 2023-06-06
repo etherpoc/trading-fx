@@ -170,6 +170,7 @@ class MT5Client:
                 "type": order_type,
                 "position": position_dict["ticket"],
                 "price": symbol_tick.ask,
+                "type_filling": mt5.ORDER_FILLING_IOC
             })
         return result
     
@@ -180,7 +181,7 @@ class MT5Client:
         result = []
         positions = self.positions_get(symbol)
         for position in positions:
-            result.append(self.order_clear(position))
+            result.append(self.order_close(position))
         return result
     
     def positions_get(self, symbol = None):
